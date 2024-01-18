@@ -31,32 +31,43 @@ public:
 	// AudioEffect overrides:
 	//--- ---------------------------------------------------------------------
 	/** Called at first after constructor */
-	Steinberg::tresult PLUGIN_API initialize (Steinberg::FUnknown* context) SMTG_OVERRIDE;
+	tresult PLUGIN_API initialize (Steinberg::FUnknown* context) SMTG_OVERRIDE;
 	
 	/** Called at the end before destructor */
-	Steinberg::tresult PLUGIN_API terminate () SMTG_OVERRIDE;
+	tresult PLUGIN_API terminate () SMTG_OVERRIDE;
+    
+    tresult PLUGIN_API setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts) SMTG_OVERRIDE;
 	
 	/** Switch the Plug-in on/off */
-	Steinberg::tresult PLUGIN_API setActive (Steinberg::TBool state) SMTG_OVERRIDE;
+	tresult PLUGIN_API setActive (Steinberg::TBool state) SMTG_OVERRIDE;
 
 	/** Will be called before any process call */
-	Steinberg::tresult PLUGIN_API setupProcessing (Steinberg::Vst::ProcessSetup& newSetup) SMTG_OVERRIDE;
+	tresult PLUGIN_API setupProcessing (Steinberg::Vst::ProcessSetup& newSetup) SMTG_OVERRIDE;
 	
 	/** Asks if a given sample size is supported see SymbolicSampleSizes. */
-	Steinberg::tresult PLUGIN_API canProcessSampleSize (Steinberg::int32 symbolicSampleSize) SMTG_OVERRIDE;
+	tresult PLUGIN_API canProcessSampleSize (Steinberg::int32 symbolicSampleSize) SMTG_OVERRIDE;
 
 	/** Here we go...the process call */
-	Steinberg::tresult PLUGIN_API process (Steinberg::Vst::ProcessData& data) SMTG_OVERRIDE;
+	tresult PLUGIN_API process (Steinberg::Vst::ProcessData& data) SMTG_OVERRIDE;
 		
 	/** For persistence */
-	Steinberg::tresult PLUGIN_API setState (Steinberg::IBStream* state) SMTG_OVERRIDE;
-	Steinberg::tresult PLUGIN_API getState (Steinberg::IBStream* state) SMTG_OVERRIDE;
+	tresult PLUGIN_API setState (Steinberg::IBStream* state) SMTG_OVERRIDE;
+	tresult PLUGIN_API getState (Steinberg::IBStream* state) SMTG_OVERRIDE;
 
 //------------------------------------------------------------------------
 protected:
     int32 timeL, timeR;
     
     inline int32 getSamplesFromNormalized (ParamValue value);
+    /**
+     * @fn
+     * 信号を遅延させる処理を行う
+     * @param (input) 入力
+     * @param (output) 出力
+     * @param (numSamples) 入力および出力の長さ(サンプル数)
+     * @param (timeSamples) 遅らせる時間(サンプル数)
+     */
+    void processDelay(Sample32* input, Sample32* output, int32 numSamples, int32 timeSamples);
 };
 
 //------------------------------------------------------------------------

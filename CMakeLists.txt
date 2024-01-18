@@ -24,6 +24,7 @@ smtg_add_vst3plugin(SpeakerDelay
     source/controller.h
     source/controller.cpp
     source/entry.cpp
+    source/ringbuffer.h
 )
 
 #- VSTGUI Wanted ----
