@@ -5,13 +5,17 @@
 #pragma once
 
 #include "public.sdk/source/vst/vstaudioeffect.h"
+#include "pluginterfaces/vst/ivstparameterchanges.h"
+
+using namespace Steinberg;
+using namespace Steinberg::Vst;
 
 namespace Wararyo {
 
 //------------------------------------------------------------------------
 //  SpeakerDelayProcessor
 //------------------------------------------------------------------------
-class SpeakerDelayProcessor : public Steinberg::Vst::AudioEffect
+class SpeakerDelayProcessor : public AudioEffect
 {
 public:
 	SpeakerDelayProcessor ();
@@ -50,7 +54,9 @@ public:
 
 //------------------------------------------------------------------------
 protected:
-
+    int32 timeL, timeR;
+    
+    inline int32 getSamplesFromNormalized (ParamValue value);
 };
 
 //------------------------------------------------------------------------

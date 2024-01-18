@@ -41,9 +41,6 @@ tresult PLUGIN_API SpeakerDelayProcessor::initialize (FUnknown* context)
 	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::kStereo);
 	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::kStereo);
 
-	/* If you don't need an event bus, you can remove the next line */
-	addEventInput (STR16 ("Event In"), 1);
-
 	return kResultOk;
 }
 
@@ -68,7 +65,7 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
 {
 	//--- First : Read inputs parameter changes-----------
 
-    /*if (data.inputParameterChanges)
+    if (data.inputParameterChanges)
     {
         int32 numParamsChanged = data.inputParameterChanges->getParameterCount ();
         for (int32 index = 0; index < numParamsChanged; index++)
@@ -80,10 +77,16 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
                 int32 numPoints = paramQueue->getPointCount ();
                 switch (paramQueue->getParameterId ())
                 {
+                    case ParamLTag:
+                        timeL = getSamplesFromNormalized(value);
+                        break;
+                    case ParamRTag:
+                        timeR = getSamplesFromNormalized(value);
+                        break;
 				}
 			}
 		}
-	}*/
+	}
 	
 	//--- Here you have to implement your processing
 
@@ -129,5 +132,10 @@ tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 	return kResultOk;
 }
 
+//------------------------------------------------------------------------
+int32 SpeakerDelayProcessor::getSamplesFromNormalized (ParamValue value)
+{
+    return (int32)(value * SamplesStepCount);
+}
 //------------------------------------------------------------------------
 } // namespace Wararyo

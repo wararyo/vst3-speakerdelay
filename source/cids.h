@@ -14,5 +14,11 @@ static const Steinberg::FUID kSpeakerDelayControllerUID (0x39221518, 0xFF7C5F6D,
 
 #define SpeakerDelayVST3Category "Fx"
 
+#define ParamLTag 100
+#define ParamRTag 101
+
+#define MaxSamples 511
+#define SamplesStepCount 512
+
 //------------------------------------------------------------------------
 } // namespace Wararyo
