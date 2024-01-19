@@ -6,6 +6,8 @@
 
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "delayer.h"
+#include "cids.h"
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -56,18 +58,9 @@ public:
 
 //------------------------------------------------------------------------
 protected:
-    int32 timeL, timeR;
+    Delayer delayers[MaxChannels];
     
     inline int32 getSamplesFromNormalized (ParamValue value);
-    /**
-     * @fn
-     * 信号を遅延させる処理を行う
-     * @param (input) 入力
-     * @param (output) 出力
-     * @param (numSamples) 入力および出力の長さ(サンプル数)
-     * @param (timeSamples) 遅らせる時間(サンプル数)
-     */
-    void processDelay(Sample32* input, Sample32* output, int32 numSamples, int32 timeSamples);
 };
 
 //------------------------------------------------------------------------

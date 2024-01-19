@@ -42,6 +42,12 @@ tresult PLUGIN_API SpeakerDelayProcessor::initialize (FUnknown* context)
 	//--- create Audio IO ------
 	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::kStereo);
 	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::kStereo);
+    
+    for (int i = 0; i < MaxChannels; i++)
+    {
+        delayers[i] = Delayer();
+        delayers[i].setDelayTime(100 * i);
+    }
 
 	return kResultOk;
 }
@@ -87,18 +93,23 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
         {
             if (auto* paramQueue = data.inputParameterChanges->getParameterData (index))
             {
-                Vst::ParamValue value;
+                int32 tag = paramQueue->getParameterId ();
+                
+                ParamValue value;
                 int32 sampleOffset;
                 int32 numPoints = paramQueue->getPointCount ();
-                switch (paramQueue->getParameterId ())
+                if (paramQueue->getPoint(numPoints - 1, sampleOffset, value) == kResultTrue)
                 {
-                    case ParamLTag:
-                        timeL = getSamplesFromNormalized(value);
-                        break;
-                    case ParamRTag:
-                        timeR = getSamplesFromNormalized(value);
-                        break;
-				}
+                    switch (tag)
+                    {
+                        case ParamLTag:
+                            delayers[0].setDelayTime(getSamplesFromNormalized(value));
+                            break;
+                        case ParamRTag:
+                            delayers[1].setDelayTime(getSamplesFromNormalized(value));
+                            break;
+                    }
+                }
 			}
 		}
 	}
@@ -107,8 +118,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
     if (data.numSamples == 0) return kResultOk;
 	
 	//--- Here you have to implement your processing
-    processDelay(data.inputs[0].channelBuffers32[0], data.outputs[0].channelBuffers32[0], data.numSamples, timeL);
-    processDelay(data.inputs[0].channelBuffers32[1], data.outputs[0].channelBuffers32[1], data.numSamples, 128);
+    delayers[0].processDelay(data.inputs[0].channelBuffers32[0], data.outputs[0].channelBuffers32[0], data.numSamples);
+    delayers[1].processDelay(data.inputs[0].channelBuffers32[1], data.outputs[0].channelBuffers32[1], data.numSamples);
 
 	return kResultOk;
 }
@@ -156,24 +167,6 @@ tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 int32 SpeakerDelayProcessor::getSamplesFromNormalized (ParamValue value)
 {
     return (int32)(value * SamplesStepCount);
-}
-
-//------------------------------------------------------------------------
-void SpeakerDelayProcessor::processDelay(Sample32 *input, Sample32 *output, int32 numSamples, int32 timeSamples)
-{
-    if(timeSamples == 0) return;
-    
-    CRingBuffer buffer;
-    buffer.SetInterval(timeSamples);
- 
-    // 入力信号にディレイを掛ける
-    for (int i = 0; i < numSamples; i++)
-    {
-        float value;
-        buffer.Write(input[i]);
-        output[i] = buffer.Read();
-        buffer.Update();
-    }
 }
 
 //------------------------------------------------------------------------
