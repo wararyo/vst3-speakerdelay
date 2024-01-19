@@ -26,10 +26,11 @@ tresult PLUGIN_API SpeakerDelayController::initialize (FUnknown* context)
 	}
 
 	// Here you could register some parameters
-    RangeParameter* paramL = new RangeParameter(STR16("L"), ParamLTag, STR16("samples"), 0, MaxSamples, 0, SamplesStepCount);
-    parameters.addParameter(paramL);
-    RangeParameter* paramR = new RangeParameter(STR16("R"), ParamRTag, STR16("samples"), 0, MaxSamples, 0, SamplesStepCount);
-    parameters.addParameter(paramR);
+    for (int i = 0; i < MaxChannels; i++)
+    {
+        RangeParameter* param = new RangeParameter(ChannelNames[i], ParamTimeTag + i, STR16("Sa"), 0, MaxSamples, 0, SamplesStepCount);
+        parameters.addParameter(param);
+    }
 
 	return result;
 }

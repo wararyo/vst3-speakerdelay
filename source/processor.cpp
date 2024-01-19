@@ -40,13 +40,12 @@ tresult PLUGIN_API SpeakerDelayProcessor::initialize (FUnknown* context)
 	}
 
 	//--- create Audio IO ------
-	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::kStereo);
-	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::kStereo);
+	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::k71_4);
+	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::k71_4);
     
     for (int i = 0; i < MaxChannels; i++)
     {
         delayers[i] = Delayer();
-        delayers[i].setDelayTime(100 * i);
     }
 
 	return kResultOk;
@@ -64,14 +63,7 @@ tresult PLUGIN_API SpeakerDelayProcessor::terminate ()
 //------------------------------------------------------------------------
 tresult PLUGIN_API SpeakerDelayProcessor::setBusArrangements (SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts)
 {
-    // inputとoutputのバスが1つずつで、かつinputとoutputの構成がステレオの場合
-    if (numIns == 1 && numOuts == 1 && inputs[0] == SpeakerArr::kStereo && outputs[0] == SpeakerArr::kStereo)
-    {
-        return AudioEffect::setBusArrangements(inputs, numIns, outputs, numOuts);
-    }
- 
-    // 対応していないバス構成の場合、kResultFalseを返す。
-    return kResultFalse;
+    return AudioEffect::setBusArrangements(inputs, numIns, outputs, numOuts);
 }
 
 //------------------------------------------------------------------------
@@ -100,14 +92,13 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
                 int32 numPoints = paramQueue->getPointCount ();
                 if (paramQueue->getPoint(numPoints - 1, sampleOffset, value) == kResultTrue)
                 {
-                    switch (tag)
+                    for (int i = 0; i < MaxChannels; i++)
                     {
-                        case ParamLTag:
-                            delayers[0].setDelayTime(getSamplesFromNormalized(value));
+                        if (tag == ParamTimeTag + i)
+                        {
+                            delayers[i].setDelayTime(getSamplesFromNormalized(value));
                             break;
-                        case ParamRTag:
-                            delayers[1].setDelayTime(getSamplesFromNormalized(value));
-                            break;
+                        }
                     }
                 }
 			}
@@ -118,8 +109,11 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
     if (data.numSamples == 0) return kResultOk;
 	
 	//--- Here you have to implement your processing
-    delayers[0].processDelay(data.inputs[0].channelBuffers32[0], data.outputs[0].channelBuffers32[0], data.numSamples);
-    delayers[1].processDelay(data.inputs[0].channelBuffers32[1], data.outputs[0].channelBuffers32[1], data.numSamples);
+    const int32 numChannels = std::min(data.inputs[0].numChannels, data.outputs[0].numChannels);
+    for (int i = 0; i < numChannels; i++)
+    {
+        delayers[i].processDelay(data.inputs[0].channelBuffers32[i], data.outputs[0].channelBuffers32[i], data.numSamples);
+    }
 
 	return kResultOk;
 }
