@@ -59,10 +59,12 @@ tresult PLUGIN_API SpeakerDelayController::setComponentState (IBStream* state)
     
     bool isBypassEnabled = false;
     TSize size = streamer.readRaw(&isBypassEnabled, sizeof(bool)); // readBoolの使い方が分からないのでreadRawで読む
+    if (size != sizeof(bool)) return kResultFalse;
     setParamNormalized(ParamBypassTag, isBypassEnabled);
     
     Delayer delayers[MaxChannels];
     size = streamer.readRaw(&delayers, sizeof(delayers));
+    if (size != sizeof(delayers)) return kResultFalse;
     for (int i = 0; i < MaxChannels; i++)
     {
         setParamNormalized(ParamTimeTag + i, getNormalizedValueFromSamples(delayers[i].getDelayTime()));

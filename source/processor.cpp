@@ -151,7 +151,9 @@ tresult PLUGIN_API SpeakerDelayProcessor::setState (IBStream* state)
 {
     IBStreamer streamer (state, kLittleEndian);
     TSize size = streamer.readRaw(&isBypassEnabled, sizeof(bool)); // readBoolの使い方が分からないのでreadRawで読む
+    if (size != sizeof(bool)) return kResultFalse;
     size = streamer.readRaw(&delayers, sizeof(delayers));
+    if (size != sizeof(delayers)) return kResultFalse;
 	
 	return kResultOk;
 }
@@ -161,7 +163,9 @@ tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 {
     IBStreamer streamer (state, kLittleEndian);
     TSize size = streamer.writeRaw(&isBypassEnabled, sizeof(bool));
+    if (size != sizeof(bool)) return kResultFalse;
     size = streamer.writeRaw(&delayers, sizeof(delayers));
+    if (size != sizeof(delayers)) return kResultFalse;
 
 	return kResultOk;
 }
