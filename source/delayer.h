@@ -23,6 +23,7 @@ public:
 	~Delayer () = default;
 
     void setDelayTime(int32 timeSamples);
+    int32 getDelayTime();
     /**
      * @fn
      * 信号を遅延させる処理を行う

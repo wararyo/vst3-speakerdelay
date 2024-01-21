@@ -18,7 +18,6 @@ static const Steinberg::FUID kSpeakerDelayControllerUID (0x39221518, 0xFF7C5F6D,
 
 #define ParamTimeTag 100
 
-#define MaxSamples 511
 #define SamplesStepCount 512
 #define MaxChannels 16
 

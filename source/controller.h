@@ -5,6 +5,10 @@
 #pragma once
 
 #include "public.sdk/source/vst/vsteditcontroller.h"
+#include "base/source/fstreamer.h"
+
+using namespace Steinberg;
+using namespace Steinberg::Vst;
 
 namespace Wararyo {
 
@@ -51,6 +55,7 @@ public:
 
 //------------------------------------------------------------------------
 protected:
+    inline ParamValue getNormalizedValueFromSamples (int32 value);
 };
 
 //------------------------------------------------------------------------

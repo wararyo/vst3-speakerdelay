@@ -4,7 +4,7 @@
 
 #include "controller.h"
 #include "cids.h"
-
+#include "delayer.h"
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -28,7 +28,8 @@ tresult PLUGIN_API SpeakerDelayController::initialize (FUnknown* context)
 	// Here you could register some parameters
     for (int i = 0; i < MaxChannels; i++)
     {
-        RangeParameter* param = new RangeParameter(ChannelNames[i], ParamTimeTag + i, STR16("Sa"), 0, MaxSamples, 0, SamplesStepCount);
+        // StepCount > 1のときはMaxPlainは使われないっぽいので適当に指定しておく
+        RangeParameter* param = new RangeParameter(ChannelNames[i], ParamTimeTag + i, STR16("Sa"), 0, SamplesStepCount, 0, SamplesStepCount);
         parameters.addParameter(param);
     }
 
@@ -50,6 +51,14 @@ tresult PLUGIN_API SpeakerDelayController::setComponentState (IBStream* state)
 	// Here you get the state of the component (Processor part)
 	if (!state)
 		return kResultFalse;
+    
+    IBStreamer streamer (state, kLittleEndian);
+    Delayer delayers[MaxChannels];
+    TSize size = streamer.readRaw(&delayers, sizeof(delayers));
+    for (int i = 0; i < MaxChannels; i++)
+    {
+        setParamNormalized(ParamTimeTag + i, getNormalizedValueFromSamples(delayers[i].getDelayTime()));
+    }
 
 	return kResultOk;
 }
@@ -105,6 +114,12 @@ tresult PLUGIN_API SpeakerDelayController::getParamValueByString (Vst::ParamID t
 	// called by host to get a normalized value from a string representation of a specific parameter
 	// (without having to set the value!)
 	return EditControllerEx1::getParamValueByString (tag, string, valueNormalized);
+}
+
+//------------------------------------------------------------------------
+ParamValue SpeakerDelayController::getNormalizedValueFromSamples (int32 value)
+{
+	return value / ParamValue (SamplesStepCount);
 }
 
 //------------------------------------------------------------------------

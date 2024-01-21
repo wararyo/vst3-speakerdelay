@@ -142,8 +142,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::canProcessSampleSize (int32 symbolicSa
 //------------------------------------------------------------------------
 tresult PLUGIN_API SpeakerDelayProcessor::setState (IBStream* state)
 {
-	// called when we load a preset, the model has to be reloaded
-	IBStreamer streamer (state, kLittleEndian);
+    IBStreamer streamer (state, kLittleEndian);
+    TSize size = streamer.readRaw(&delayers, sizeof(delayers));
 	
 	return kResultOk;
 }
@@ -151,8 +151,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::setState (IBStream* state)
 //------------------------------------------------------------------------
 tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 {
-	// here we need to save the model
-	IBStreamer streamer (state, kLittleEndian);
+    IBStreamer streamer (state, kLittleEndian);
+    TSize size = streamer.writeRaw(&delayers, sizeof(delayers));
 
 	return kResultOk;
 }
@@ -160,7 +160,7 @@ tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 //------------------------------------------------------------------------
 int32 SpeakerDelayProcessor::getSamplesFromNormalized (ParamValue value)
 {
-    return (int32)(value * SamplesStepCount);
+    return std::min(SamplesStepCount, int32 (value * (SamplesStepCount + 1)));
 }
 
 //------------------------------------------------------------------------

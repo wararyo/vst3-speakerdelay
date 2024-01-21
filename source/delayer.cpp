@@ -19,6 +19,11 @@ void Delayer::setDelayTime (int32 timeSamples)
     buffer.SetInterval(timeSamples);
 }
 
+int32 Delayer::getDelayTime ()
+{
+    return delayTime;
+}
+
 void Delayer::processDelay (Sample32 *input, Sample32 *output, int32 numSamples)
 {
     if(delayTime == 0) return;
