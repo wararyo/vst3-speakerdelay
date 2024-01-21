@@ -40,8 +40,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::initialize (FUnknown* context)
 	}
 
 	//--- create Audio IO ------
-	addAudioInput (STR16 ("Stereo In"), Steinberg::Vst::SpeakerArr::k71_4);
-	addAudioOutput (STR16 ("Stereo Out"), Steinberg::Vst::SpeakerArr::k71_4);
+	addAudioInput (STR16 ("7.1.4 In"), Steinberg::Vst::SpeakerArr::k71_4);
+	addAudioOutput (STR16 ("7.1.4 Out"), Steinberg::Vst::SpeakerArr::k71_4);
     
     for (int i = 0; i < MaxChannels; i++)
     {
