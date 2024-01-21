@@ -59,6 +59,7 @@ public:
 //------------------------------------------------------------------------
 protected:
     Delayer delayers[MaxChannels];
+    bool isBypassEnabled = false;
     
     inline int32 getSamplesFromNormalized (ParamValue value);
 };

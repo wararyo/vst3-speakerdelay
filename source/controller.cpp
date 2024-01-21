@@ -32,6 +32,9 @@ tresult PLUGIN_API SpeakerDelayController::initialize (FUnknown* context)
         RangeParameter* param = new RangeParameter(ChannelNames[i], ParamTimeTag + i, STR16("Sa"), 0, SamplesStepCount, 0, SamplesStepCount);
         parameters.addParameter(param);
     }
+    
+    // Bypass parameter
+    parameters.addParameter(STR16("Bypass"), nullptr, 1, 0.0, Vst::ParameterInfo::kCanAutomate | Vst::ParameterInfo::kIsBypass, ParamBypassTag);
 
 	return result;
 }
@@ -53,8 +56,13 @@ tresult PLUGIN_API SpeakerDelayController::setComponentState (IBStream* state)
 		return kResultFalse;
     
     IBStreamer streamer (state, kLittleEndian);
+    
+    bool isBypassEnabled = false;
+    TSize size = streamer.readRaw(&isBypassEnabled, sizeof(bool)); // readBoolの使い方が分からないのでreadRawで読む
+    setParamNormalized(ParamBypassTag, isBypassEnabled);
+    
     Delayer delayers[MaxChannels];
-    TSize size = streamer.readRaw(&delayers, sizeof(delayers));
+    size = streamer.readRaw(&delayers, sizeof(delayers));
     for (int i = 0; i < MaxChannels; i++)
     {
         setParamNormalized(ParamTimeTag + i, getNormalizedValueFromSamples(delayers[i].getDelayTime()));

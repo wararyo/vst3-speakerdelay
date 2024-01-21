@@ -100,10 +100,17 @@ tresult PLUGIN_API SpeakerDelayProcessor::process (Vst::ProcessData& data)
                             break;
                         }
                     }
+                    if (tag == ParamBypassTag)
+                    {
+                        isBypassEnabled = (value > 0.5);
+                    }
                 }
 			}
 		}
 	}
+    
+    // バイパスの時は何もしない
+    if (isBypassEnabled) return kResultOk;
     
     // numSamplesが0のとき、inputsとoutputsには何も入らない
     if (data.numSamples == 0) return kResultOk;
@@ -143,7 +150,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::canProcessSampleSize (int32 symbolicSa
 tresult PLUGIN_API SpeakerDelayProcessor::setState (IBStream* state)
 {
     IBStreamer streamer (state, kLittleEndian);
-    TSize size = streamer.readRaw(&delayers, sizeof(delayers));
+    TSize size = streamer.readRaw(&isBypassEnabled, sizeof(bool)); // readBoolの使い方が分からないのでreadRawで読む
+    size = streamer.readRaw(&delayers, sizeof(delayers));
 	
 	return kResultOk;
 }
@@ -152,7 +160,8 @@ tresult PLUGIN_API SpeakerDelayProcessor::setState (IBStream* state)
 tresult PLUGIN_API SpeakerDelayProcessor::getState (IBStream* state)
 {
     IBStreamer streamer (state, kLittleEndian);
-    TSize size = streamer.writeRaw(&delayers, sizeof(delayers));
+    TSize size = streamer.writeRaw(&isBypassEnabled, sizeof(bool));
+    size = streamer.writeRaw(&delayers, sizeof(delayers));
 
 	return kResultOk;
 }
